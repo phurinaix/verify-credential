@@ -1,0 +1,26 @@
+<!doctype html>
+
+<html>
+  <head>
+    <title>blockchain-certificate</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <script src="../webcomponentsjs/webcomponents-lite.js"></script> -->
+    <!-- <script src="/components/webcomponentsjs/webcomponents-lite.min.js"></script> -->
+    <link rel="import" href="./blockchain-certificate.html">
+    <link rel="import" href="./validate-certificate.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body>
+
+    <validate-certificate>
+        <blockchain-certificate id="one" href=""></blockchain-certificate>
+    </validate-certificate>
+
+    <script>
+        document.getElementById("one").href = "http://localhost:8000/cert";
+    </script>
+  </body>
+</html>
