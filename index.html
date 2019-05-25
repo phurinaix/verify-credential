@@ -15,10 +15,10 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   </head>
   <body>
-    <!-- <iron-component-page src="blockchain-certificate.html"></iron-component-page> -->
-    <form action="http://localhost:8000/import" method="post" enctype="multipart/form-data" autocomplete="off">
-      <input type="text" name="url" required/>
-      <input type="file" name="file" required/>
+    <iron-component-page src="blockchain-certificate.html"></iron-component-page>
+    <form id="form" autocomplete="off">
+      <input type="text" name="url" id="url" required/>
+      <input type="file" name="file" id="file"/>
       <input type="submit" name="submit"/>
     </form>
 
@@ -35,7 +35,7 @@
           </div>
           <div class="modal-body">
               <validate-certificate>
-                  <blockchain-certificate id="one" href=""></blockchain-certificate>
+                  <blockchain-certificate id="cert" href=""></blockchain-certificate>
               </validate-certificate>
           </div>
           <div class="modal-footer">
@@ -49,8 +49,72 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script>
-      $('#certModal').modal('toggle');
-      document.getElementById("one").href = "http://localhost:8000/cert";
+      // $('#certModal').modal('toggle');
+      // document.getElementById("cert").href = "";
+      var cert = document.getElementById("cert");
+      var input = document.getElementById('file');
+      var url = document.getElementById("url");
+      cert.href = "https://raw.githubusercontent.com/blockchain-certificates/cert-web-component/master/demo/sample_cert-valid-2.0.json";
+
+      document.getElementById("form").addEventListener('submit', function(e) {
+        e.preventDefault();
+        cert.href = "https://raw.githubusercontent.com/blockchain-certificates/cert-web-component/master/demo/sample_cert-valid-2.0.json";
+        var data = new FormData();
+        data.append('file', input.files[0]);
+        data.append('url', url.value);
+
+        fetch('http://localhost:8000/import', {
+          method: 'POST',
+          body: data
+        })
+        .then(
+          response => response.json()
+        ).then(
+          success => {
+            console.log(success)
+            var status = success.status;
+            if (status === 'success') {
+              $('#certModal').modal('toggle');
+              cert.href = "http://localhost:8000/cert";
+            } else if (status === 'success url') {
+              $('#certModal').modal('toggle');
+              cert.href = success.url;
+            } else {
+              cert.href = "";
+            }
+          }
+        ).catch(
+          error => console.log(error)
+        );
+      }, false);
+
+      input.addEventListener('change', function() {
+      cert.href = "https://raw.githubusercontent.com/blockchain-certificates/cert-web-component/master/demo/sample_cert-valid-2.0.json";
+        var data = new FormData();
+        data.append('file', input.files[0]);
+
+        fetch('http://localhost:8000/import', {
+          method: 'POST',
+          body: data
+        })
+        .then(
+          response => response.json()
+        ).then(
+          success => {
+            console.log(success)
+            var status = success.status;
+            if (status === 'success') {
+              $('#certModal').modal('toggle');
+              cert.href = "http://localhost:8000/cert";
+            } else {
+              cert.href = "";
+            }
+          }
+        ).catch(
+          error => console.log(error)
+        );
+      }, false);
+      
     </script>
   </body>
 </html>
