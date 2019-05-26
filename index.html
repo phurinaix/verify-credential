@@ -54,11 +54,13 @@
       var cert = document.getElementById("cert");
       var input = document.getElementById('file');
       var url = document.getElementById("url");
-      cert.href = "https://raw.githubusercontent.com/blockchain-certificates/cert-web-component/master/demo/sample_cert-valid-2.0.json";
+      cert.href = "sample_cert-valid-2.0.json";
 
       document.getElementById("form").addEventListener('submit', function(e) {
         e.preventDefault();
-        cert.href = "https://raw.githubusercontent.com/blockchain-certificates/cert-web-component/master/demo/sample_cert-valid-2.0.json";
+        // cert.href = "https://raw.githubusercontent.com/blockchain-certificates/cert-web-component/master/demo/sample_cert-valid-2.0.json";
+        cert.href = "sample_cert-valid-2.0.json";
+
         var data = new FormData();
         data.append('file', input.files[0]);
         data.append('url', url.value);
@@ -89,7 +91,8 @@
       }, false);
 
       input.addEventListener('change', function() {
-      cert.href = "https://raw.githubusercontent.com/blockchain-certificates/cert-web-component/master/demo/sample_cert-valid-2.0.json";
+      // cert.href = "https://raw.githubusercontent.com/blockchain-certificates/cert-web-component/master/demo/sample_cert-valid-2.0.json";
+        cert.href = "sample_cert-valid-2.0.json";
         var data = new FormData();
         data.append('file', input.files[0]);
 

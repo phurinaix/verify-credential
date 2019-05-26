@@ -1,0 +1,170 @@
+<!DOCTYPE html><html><head>
+    <title>blockchain-certificate</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <script src="../webcomponentsjs/webcomponents-lite.js"></script> -->
+    <!-- <script src="/components/webcomponentsjs/webcomponents-lite.min.js"></script> -->
+    <link rel="import" href="./blockchain-certificate.html">
+    <link rel="import" href="./validate-certificate.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+      body {
+        background-color: #fee4ab;
+      }
+      .form-container {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+      h4 {
+        color: #ce2b2b;
+      }
+      .input-container {
+        background-color: rgba(71, 71, 71, 0.3);
+        padding: 30px;
+      }
+      input[type="text"] {
+        border: 0;
+      }
+      #file {
+        display: none;
+      }
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        visibility: hidden;
+        margin: 50px auto;
+        border: 10px solid rgba(255,255,255,.1);
+        border-left: 10px solid rgb(231, 75, 13);
+        animation: spinner 1s linear infinite
+      }
+
+      @keyframes spinner {
+        0% {
+          transform: rotate(0deg)
+        }
+        
+        100% {
+          transform: rotate(360deg)
+        }
+      }
+
+    </style>
+  </head>
+  <body>
+    <iron-component-page src="blockchain-certificate.html"></iron-component-page>
+    <div class="container">
+
+      <div class="col-md-7 form-container">
+        <div class="text-center">
+          <img src="http://www.tu.ac.th/uploads/main-logo.svg" width="40%">
+          <h4 class="text-center my-4">Thammasat University Credential Verifier</h4>
+        </div>
+        <form id="form" autocomplete="off">
+          <div class="row input-container">
+            <div class="form-group col-sm-10 p-0">
+              <input type="text" class="form-control w-100" placeholder="Certificate Url" name="url" id="url" required="">
+            </div>
+            <div class="col-sm-2 p-0">
+              <input type="submit" name="submit" value="Verify" class="btn btn-warning w-100">
+            </div>
+          </div>
+          <div class="file-container">
+            <label for="file"><small><u>Choose JSON file</u></small></label>
+          </div>
+          <input type="file" name="file" id="file">
+        </form>
+        <div class="spinner" id="spinner"></div>
+      </div>
+      <!-- Modal -->
+      <div class="modal fade" id="certModal" tabindex="-1" role="dialog" aria-labelledby="certModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Certificate</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <validate-certificate>
+                    <blockchain-certificate id="cert"></blockchain-certificate>
+                </validate-certificate>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script>
+    var serverUrl = 'https://tu-verification.herokuapp.com';
+  var cert = document.getElementById("cert");
+  var input = document.getElementById('file');
+  var url = document.getElementById("url");
+  cert.href = "./sample_cert-valid-2.0.json";
+  document.getElementById("form").addEventListener('submit', function (e) {
+    e.preventDefault(); // cert.href = "https://raw.githubusercontent.com/blockchain-certificates/cert-web-component/master/demo/sample_cert-valid-2.0.json";
+    document.getElementById("spinner").style.visibility = 'visible';
+    cert.href = "./sample_cert-valid-2.0.json";
+    var data = new FormData();
+    data.append('file', input.files[0]);
+    data.append('url', url.value);
+    fetch(`${serverUrl}/import`, {
+      method: 'POST',
+      body: data
+    }).then(response => response.json()).then(success => {
+      console.log(success);
+      document.getElementById("spinner").style.visibility = 'hidden';
+      var status = success.status;
+
+      if (status === 'success') {
+        $('#certModal').modal('toggle');
+        cert.href = `${serverUrl}/cert`;
+      } else if (status === 'success url') {
+        $('#certModal').modal('toggle');
+        cert.href = success.url;
+      } else {
+        cert.href = "";
+      }
+    }).catch(error => console.log(error));
+  }, false);
+  input.addEventListener('change', function () {
+    document.getElementById("spinner").style.visibility = "visible";
+  // cert.href = "https://raw.githubusercontent.com/blockchain-certificates/cert-web-component/master/demo/sample_cert-valid-2.0.json";
+  cert.href = "./sample_cert-valid-2.0.json";
+  var data = new FormData();
+  data.append('file', input.files[0]);
+  fetch(`${serverUrl}/import`, {
+      method: 'POST',
+      body: data
+    }).then(response => response.json()).then(success => {
+      console.log(success);
+      document.getElementById("spinner").style.visibility = "hidden";
+      var status = success.status;
+
+      if (status === 'success') {
+        $('#certModal').modal('toggle');
+        cert.href = `${serverUrl}/cert`;
+      } else {
+        cert.href = "";
+      }
+    }).catch(error => console.log(error));
+  }, false);
+  $('#certModal').on('hidden.bs.modal', function (e) {
+    window.location.reload(true)
+  });
+</script>
+  
+
+</body></html>
