@@ -11,7 +11,7 @@
     "bitcoinjs-lib": "^2.3.0",
     "bs58": "^3.0.0",
     "buffer": "^5.0.1",
-    "cert-verifier-js": "^1.0.1",
+    "cert-verifier-js": "^2.0.2",
     "ecurve": "^1.0.4",
     "polymer": "^0.5.0"
   },
